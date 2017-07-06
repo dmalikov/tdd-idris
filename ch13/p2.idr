@@ -84,42 +84,14 @@ strToInput x = if all isDigit (unpack x)
                   else Nothing
 
 mutual
-  -- TODO
-  -- tryBinaryOp : StackCmd () (S (S height)) (S height) -> StackIO (S height)
-  -- tryBinaryOp op
-  --   = do op
-  --        result <- Top
-  --        PutStr (show result ++ "\n")
-  --        stackCalc
-  -- tryBinaryOp _ = do PutStr "Fewer than two items on the stack\n"
-  --                    stackCalc
-
-  tryAdd : StackIO height
-  tryAdd {height = (S (S h))}
-    = do doAdd
+  tryBinaryOp : ({height' : Nat} -> StackCmd () (S (S height')) (S height')) -> StackIO height
+  tryBinaryOp {height = S (S h)} op
+    = do op
          result <- Top
          PutStr (show result ++ "\n")
          stackCalc
-  tryAdd = do PutStr "Fewer than two items on the stack\n"
-              stackCalc
-
-  trySubtract : StackIO height
-  trySubtract {height = (S (S h))}
-    = do doSubtract
-         result <- Top
-         PutStr (show result ++ "\n")
-         stackCalc
-  trySubtract = do PutStr "Fewer than two items on the stack\n"
-                   stackCalc
-
-  tryMultiply : StackIO height
-  tryMultiply {height = (S (S h))}
-    = do doMultiply
-         result <- Top
-         PutStr (show result ++ "\n")
-         stackCalc
-  tryMultiply = do PutStr "Fewer than two items on the stack\n"
-                   stackCalc
+  tryBinaryOp _ = do PutStr "Fewer than two items on the stack\n"
+                     stackCalc
 
   tryNegate : StackIO height
   tryNegate {height = S h}
@@ -155,9 +127,9 @@ mutual
                                     stackCalc
                       Just (Number x) => do Push x
                                             stackCalc
-                      Just Add => tryAdd -- tryBinaryOp doAdd
-                      Just Subtract => trySubtract -- tryBinaryOp doSubtract
-                      Just Multiply => tryMultiply -- tryBinaryOp doMultiply
+                      Just Add => tryBinaryOp doAdd
+                      Just Subtract => tryBinaryOp doSubtract
+                      Just Multiply => tryBinaryOp doMultiply
                       Just Negate => tryNegate
                       Just Discard => tryDiscard
                       Just Duplicate => tryDuplicate
